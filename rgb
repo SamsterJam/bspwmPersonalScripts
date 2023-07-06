@@ -1,0 +1,79 @@
+#!/bin/bash
+# Sam's custom openRGB script, since the openRGB client can't save specifics.
+
+# Optional KrakenZ rest
+a_flag=0;
+w_flag=0;
+color="00FF00" # Default color
+
+# Parse command-line options
+while getopts ":ac:w" opt; do
+  case $opt in
+    a)
+      a_flag=1
+      ;;
+    c)
+      color="$OPTARG"
+      ;;
+    w)
+      w_flag=1
+      ;;
+    \?)
+      echo "Usage: myscript.sh [-a] [-c COLOR] [-w]" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# Store PIDs of background processes
+pids=()
+
+# Motherboard Light
+openrgb -d "ASUS TUF GAMING Z590-PLUS" -m Direct -c $color -b 100 --noautoconnect &
+pids+=($!)
+
+# GPU Light
+openrgb -d "ASUS ROG STRIX RTX 2060 O6G Gaming" -m Direct -c $color -b 100 --noautoconnect &
+pids+=($!)
+
+# Mouse Lights
+openrgb -d "Razer Basilisk V3" -m Static -c $color -b 100 --noautoconnect &
+pids+=($!)
+
+# Mouse Pad Light
+openrgb -d "Razer Goliathus" -m Static -c $color -b 100 --noautoconnect &
+pids+=($!)
+
+# DeskMat Light
+openrgb -d "Razer Goliathus Extended" -m Static -c $color -b 100 --noautoconnect &
+pids+=($!)
+
+# Corsir LED Strip
+openrgb -d "Corsair Lighting Node Pro" -m Direct -c $color -b 100 --noautoconnect &
+pids+=($!)
+
+# Headphone Stand
+openrgb -d "Razer Base Station V2 Chroma" -m Static -c $color -b 100 --noautoconnect &
+pids+=($!)
+
+# Honestly don't know what this is?
+openrgb -d "Patriot Viper Steel RGB" -m Direct -c $color -b 100 --noautoconnect &
+pids+=($!)
+
+if [ "$a_flag" -eq 1 ]; then
+  echo 'Setting KrakenZ Lights'
+  liquidctl --match 'NZXT Kraken Z' set lcd screen orientation 90 &
+  pids+=($!)
+  liquidctl --match 'NZXT Kraken Z' set lcd screen gif ~/Pictures/Razer.gif &
+  pids+=($!)
+  liquidctl --match 'NZXT Kraken Z' set external color fixed $color &
+  pids+=($!)
+fi
+
+if [ "$w_flag" -eq 1 ]; then
+  for pid in "${pids[@]}"; do
+    wait $pid
+  done
+fi
+
+#exit 0

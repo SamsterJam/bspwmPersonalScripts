@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Define the desired content for the state.conf file
+desired_content="[Last]
+# Name of the last logged-in user.
+# This user will be preselected when the login screen appears
+User=smiller
+
+# Name of the session for the last logged-in user.
+# This session will be preselected when the login screen appears.
+
+Session=/usr/share/xsessions/bspwm.desktop"
+
+sleep 1
+
+# Update the state.conf file with the desired content
+echo "$desired_content" | sudo tee /var/lib/sddm/state.conf > /dev/null

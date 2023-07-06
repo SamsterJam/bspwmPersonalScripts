@@ -1,0 +1,25 @@
+#!/bin/bash
+
+killall xwinwrap &
+
+sleep 0.5
+
+# Check if a file name was provided
+if [ -z "$1" ]; then
+    echo "Please provide a video file as an argument."
+    exit 1
+fi
+
+# Check if the file exists
+if [ ! -f "$1" ]; then
+    echo "File not found: $1"
+    exit 1
+fi
+
+# Set the wallpaper on the left monitor
+xwinwrap -g 1920x1080+0+180 -ov -ni -s -nf -- mplayer -wid WID -loop 0 -quiet -nosound "$1" &
+
+# Set the wallpaper on the right monitor
+xwinwrap -g 2560x1440+1920+0 -ov -ni -s -nf -- mplayer -wid WID -loop 0 -quiet -nosound "$1" &
+
+exit 0

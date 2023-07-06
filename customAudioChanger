@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <inc|dec> <percentage>"
+    exit 1
+fi
+
+action=$1
+percentage=$2
+
+# Check if the action is valid
+if [ "$action" != "inc" ] && [ "$action" != "dec" ]; then
+    echo "Invalid action. Use 'inc' or 'dec'."
+    exit 1
+fi
+
+# Get the ID of the currently focused window
+focused_window_id=$(xdotool getwindowfocus)
+
+# Get the process ID associated with the focused window
+focused_pid=$(xdotool getwindowpid "$focused_window_id")
+
+# Find the PulseAudio sink input index associated with the focused window
+sink_input_index=$(pactl list sink-inputs short | awk -v pid="$focused_pid" '$4 == pid {print $1}')
+
+if [ -n "$sink_input_index" ]; then
+    # Adjust the volume based on the action and percentage
+    if [ "$action" = "inc" ]; then
+    pactl set-sink-input-volume "$sink_input_index" +${percentage}%
+        echo "Increased volume of focused window (PID: $focused_pid) by $percentage%"
+    else
+        pactl set-sink-input-volume "$sink_input_index" -${percentage}%
+        echo "Decreased volume of focused window (PID: $focused_pid) by $percentage%"
+    fi
+else
+    echo "No audio source found for focused window (PID: $focused_pid)"
+fi
